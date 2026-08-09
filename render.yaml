@@ -1,0 +1,28 @@
+databases:
+  - name: opalaverde-db
+    plan: free
+    databaseName: opalaverde
+    user: opalaverde
+
+services:
+  - type: web
+    name: opalaverde-backend
+    runtime: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: "True"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: opalaverde-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: "3.12.3"
