@@ -26,10 +26,19 @@ class Order(models.Model):
     status = models.CharField(
         max_length=15, choices=Status.choices, default=Status.RECEBIDO
     )
+    class PaymentStatus(models.TextChoices):
+        PENDING = "pending", "A combinar"
+        AGREED = "agreed", "Pagamento combinado"
+        PAID = "paid", "Pagamento confirmado"
+
+    payment_status = models.CharField(max_length=12, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
+    payment_method = models.CharField(max_length=60, blank=True)
     delivery_address = models.CharField(max_length=255, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("5.00"))
     notes = models.TextField(blank=True)
+    cancellation_reason = models.TextField(blank=True, default="")
+    fulfillment_method = models.CharField(max_length=12, choices=[("delivery", "Entrega"), ("pickup", "Retirada"), ("arrange", "A combinar")], default="arrange")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -70,3 +70,14 @@ class ClientAddress(models.Model):
 
     def __str__(self):
         return f"{self.street}, {self.number} - {self.city}/{self.state}"
+
+
+class SiteConfiguration(models.Model):
+    """Informações públicas administráveis, persistidas no banco."""
+    site_name = models.CharField(max_length=100, default="OpalaVerde")
+    tagline = models.CharField(max_length=180, blank=True)
+    description = models.TextField(blank=True)
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=30, blank=True)
+    address = models.CharField(max_length=255, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)

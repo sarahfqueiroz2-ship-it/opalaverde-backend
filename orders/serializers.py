@@ -43,7 +43,11 @@ class OrderSerializer(serializers.ModelSerializer):
             "customer_name",
             "customer_phone",
             "status",
+            "payment_status",
+            "payment_method",
             "delivery_address",
+            "fulfillment_method",
+            "cancellation_reason",
             "total",
             "delivery_fee",
             "notes",
@@ -51,7 +55,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["customer", "total", "created_at", "updated_at"]
+        read_only_fields = ["customer", "total", "payment_status", "payment_method", "cancellation_reason", "created_at", "updated_at"]
 
 
 class CheckoutItemSerializer(serializers.Serializer):
@@ -70,6 +74,7 @@ class CheckoutSerializer(serializers.Serializer):
 
     items = CheckoutItemSerializer(many=True)
     delivery_address = serializers.CharField(required=False, allow_blank=True)
+    fulfillment_method = serializers.ChoiceField(choices=["delivery", "pickup", "arrange"], default="arrange")
     notes = serializers.CharField(required=False, allow_blank=True)
 
     def validate_items(self, value):
@@ -82,15 +87,22 @@ class CheckoutSerializer(serializers.Serializer):
         request = self.context["request"]
         items_data = validated_data["items"]
 
+        producers = {item["product"].producer_id for item in items_data}
+        if len(producers) != 1:
+            raise serializers.ValidationError("Finalize separadamente os produtos de cada produtor para combinar o pagamento.")
+
         order = Order.objects.create(
             customer=request.user,
             delivery_address=validated_data.get("delivery_address", ""),
+            fulfillment_method=validated_data.get("fulfillment_method", "arrange"),
             notes=validated_data.get("notes", ""),
         )
 
         subtotal = 0
         for item in items_data:
-            product = item["product"]
+            product = Product.objects.select_for_update().get(pk=item["product"].pk)
+            if not product.active:
+                raise serializers.ValidationError("Produto indisponível.")
             quantity = item["quantity"]
 
             if product.stock < quantity:
@@ -108,8 +120,6 @@ class CheckoutSerializer(serializers.Serializer):
                 quantity=quantity,
                 unit=product.unit,
             )
-            product.stock -= quantity
-            product.save(update_fields=["stock"])
             subtotal += product.price * quantity
 
         order.total = subtotal + order.delivery_fee

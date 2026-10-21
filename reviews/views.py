@@ -26,6 +26,18 @@ class ReviewViewSet(viewsets.ModelViewSet):
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
 
+    def perform_update(self, serializer):
+        if self.request.user != serializer.instance.customer:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Somente o autor pode editar a avaliação.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if self.request.user != instance.customer and self.request.user.user_type != "admin":
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Sem permissão para excluir esta avaliação.")
+        instance.delete()
+
     @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
     def mine(self, request):
         """Lista as avaliações de todos os produtos do produtor autenticado."""

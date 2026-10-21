@@ -9,3 +9,41 @@ env/
 staticfiles/
 media/
 .DS_Store
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Banco de dados e backups
+db.sqlite3
+db.sqlite3.*
+*.sqlite3
+*.sqlite3.*
+*.db
+
+# Credenciais
+.env
+.env.*
+!.env.example
+
+# Arquivos locais
+media/
+staticfiles/
+.DS_Store
+
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+db.sqlite3
+db.sqlite3.*
+*.sqlite3
+*.sqlite3.*
+*.db
+.env
+.env.*
+!.env.example
+media/
+staticfiles/

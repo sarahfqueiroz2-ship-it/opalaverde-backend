@@ -1,0 +1,1 @@
+Chat: API em /api/orders/conversations/. Cliente inicia por POST /start/ com recipient; produtor responde por POST /{id}/send/. GET lista conversas de ambos. Sem migracoes adicionais nesta revisao. Testar com contas distintas e backend local.
