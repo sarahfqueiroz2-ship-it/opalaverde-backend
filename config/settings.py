@@ -180,4 +180,6 @@ SIMPLE_JWT = {
 # Em desenvolvimento liberamos tudo. Em produção, defina CORS_ALLOWED_ORIGINS
 # com o(s) domínio(s) reais do frontend (ex: https://seusite.com).
 CORS_ALLOW_ALL_ORIGINS = config("CORS_ALLOW_ALL_ORIGINS", default=True, cast=bool)
-CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="", cast=Csv())
+CORS_ALLOWED_ORIGINS = [
+    "https://opalaverde-frontend-sfdx.onrender.com",
+]
